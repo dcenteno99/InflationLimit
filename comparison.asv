@@ -1,0 +1,25 @@
+%This script is to compare the solution obtained in the hexagon with k=7
+%with the one obtained in the 9 party inflation also with k=7
+precision=100;
+p=linspace(0.0001,0.000001,precision);
+%load the data
+data=load('Q_0.0001_0.000001_k_7_prec100_lin.mat');
+data1 = load('Q_0.0001_0.000001_k_7_prec100_9parties.mat');
+Q_k_7_6parties=data.solution;
+Q_k_7_9parties=data1.solution;
+
+%I want to compare the marginal Q(abca'b') of both cases
+for i=1:100
+for a=[0,1]
+    for b=[0,1]
+        for c=[0,1]
+            for a2=[0,1]
+                for b2=[0,1]
+                    marginal_6(=sum_6eps(a,b,c,a2,b2,Q_k_7_6parties(:,i));
+                    
+                end
+            end
+        end
+    end
+end
+end

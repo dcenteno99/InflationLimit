@@ -1,14 +1,16 @@
 %clear all
-precision=100;
+diary 9_party_precision_100_qfrom0to1
+precision=40;
 klimit=1000;
+solution=zeros(2^9,precision);
 ind_p = 1;%index for each value of p
 ind_q = 1;%index for each value of q
 counter=0;
-for q=linspace(0.996,1,precision)
+for q=linspace(0,1,precision)
 %q=1; 
 ind_p=1;
-    for p=linspace(0.000001,(1-q),precision)
-   
+    for p=linspace(0.00001,1-q,precision)
+   %q=1-7*p;
    %p=0; 
    x = sdpvar(2^9,1);
 %We add positivity and sum=1 constraints     
@@ -57,6 +59,7 @@ for c=[0,1]
          constraints = [constraints, sum_1256789eps(c,a2,x) == cons(c,a2,p,q)];
     end
 end
+%{
 %Q(a'b')=P(a'b')
 for a2=[0,1]
     for b2=[0,1]
@@ -93,8 +96,8 @@ for a=[0,1]
          constraints = [constraints, sum_2345678eps(a,c3,x) == cons(a,c3,p,q)];
     end
 end
-
-
+%}
+%{
 %Finally we add the constraints of the type
 %Q(aba'b'a''b'')=P(ab)P(a'b')P(a''b'')
 for a = [0 1]
@@ -134,7 +137,7 @@ for a = [0 1]
                  end
             end
 end
-
+%}
 %We add constraints of the type Q(abca'b'c'b'')=Q(abca'b'c')P(b''), we have 9
  %like this but 6 of them are redundant
         for a = [0 1]
@@ -290,7 +293,7 @@ for a=[0,1]
 end
 
 %Now we add the constraints of the type Q(abcb'a''b'')=Q(abc)P(b')P(a''b'')
-
+%{
 for a=[0,1]
     for b=[0,1]
         for c=[0,1]
@@ -333,15 +336,15 @@ for a=[0,1]
         end
     end
 end
-
+%}
 
 
 
 
         options = sdpsettings('solver','mosek');
         diagnostics = optimize(constraints,[],options);
-        solution = value(x);
-         M=diagnostics.problem
+        solution(:,ind_p) = value(x);
+         M(ind_p,ind_q)=diagnostics.problem;
          M_q(ind_p,ind_q)=q;
          M_p(ind_p,ind_q)=p;
          ind_p=ind_p+1;
@@ -354,6 +357,8 @@ end
     ind_q=ind_q+1;
 end
 klimit
-%surface(M_p,M_q,M,'EdgeColor','none')
-%xlabel("p")
-%ylabel("q")
+surface(M_p,M_q,M,'EdgeColor','none')
+xlabel("p")
+ylabel("q")
+save('9_party_precision_100_qfrom0to1_variables')
+diary off
